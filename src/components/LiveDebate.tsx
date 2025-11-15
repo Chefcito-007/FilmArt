@@ -84,7 +84,7 @@ export function LiveDebate({ user }: LiveDebateProps) {
         id: '1',
         movieTitle: 'National Geographic',
         movieThumbnail: 'https://alfabetajuega.com/hero/2022/04/19d79bc3e750b0e332a0deebb15b9630.jpg?width=1200', // Imagen antes de reproducir
-        trailerLink: '../public/img/video/nationalg.mp4',  // Ruta al video local
+        trailerLink: '/img/video/nationalg.mp4',  // Ruta al video local
         topic: 'Tema de ejemplo sobre National Geographic',
         startTime: new Date(),
         participants: 5,
