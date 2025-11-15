@@ -165,8 +165,8 @@ export function Community({ user }: CommunityProps) {
       id: '1',
       title: 'La Decima',
       thumbnail: 'https://static.wixstatic.com/media/b232c9_5adb256ed4a348f8ab595f43d44b7eab~mv2.jpg/v1/fill/w_2500,h_1406,al_c/b232c9_5adb256ed4a348f8ab595f43d44b7eab~mv2.jpg',
-      views: 2840,
-      likes: 200,
+      views: 3500,
+      likes: 1000,
       debatesCount: 12
     },
     {

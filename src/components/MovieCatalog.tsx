@@ -57,7 +57,7 @@ export function MovieCatalog({ user, preview = false }: MovieCatalogProps) {
       tags: ['comunidad', 'deporte'],
       releaseYear: 2024,
       socialTheme: 'Deporte',
-      trailer: '../src/img/video/ladecima.mp4', // Link al video
+      trailer: '../public/img/video/ladecima.mp4', // Link al video
     },
     {
       id: '2',
@@ -74,7 +74,7 @@ export function MovieCatalog({ user, preview = false }: MovieCatalogProps) {
       tags: ['comunidad', 'terror'],
       releaseYear: 2025,
       socialTheme: 'Terror',
-      trailer: '../src/img/video/conjuro.mp4', // Link al video
+      trailer: '../public/img/video/conjuro.mp4', // Link al video
     },
         {
       id: '3',
@@ -91,7 +91,7 @@ export function MovieCatalog({ user, preview = false }: MovieCatalogProps) {
       tags: ['comunidad', 'documental'],
       releaseYear: 2025,
       socialTheme: 'Documental',
-      trailer: '../src/img/video/nationalg.mp4', // Link al video
+      trailer: '../public/img/video/nationalg.mp4', // Link al video
     },
     // Más películas aquí...
   ];

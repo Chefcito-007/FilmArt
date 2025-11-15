@@ -37,11 +37,11 @@ interface LiveDebateProps {
 
 const generateRandomMessages = () => {
   const messages = [
-    '¡Este debate sobre El Conjuro es impresionante!',
-    'Me encantó la escena del clóset, ¿quién más se asustó?',
-    '¿Alguien tiene alguna teoría sobre la historia detrás del conjuro?',
-    '¡Vaya! Me dejó sin palabras, el suspenso estuvo brutal.',
-    'El sonido en esta película es escalofriante, ¿lo notaron?',
+'¡Increíble cómo capturan la belleza de la naturaleza en National Geographic!',
+  'Me fascina cómo explican la relación entre los animales y su entorno 🌍',
+  '¿Alguien más se sorprendió con las imágenes del océano? Son impresionantes 🐋',
+  'Este documental me hace pensar en lo importante que es cuidar el planeta 🌿',
+  'La narración de National Geographic siempre logra inspirar, ¡qué producción tan buena!',
   ];
   return messages.map((msg, index) => ({
     id: `${index}`,
@@ -82,10 +82,10 @@ export function LiveDebate({ user }: LiveDebateProps) {
 
       const sampleDebate = {
         id: '1',
-        movieTitle: 'El Conjuro',
-        movieThumbnail: 'https://m.media-amazon.com/images/M/MV5BOGU3OTk3ZjgtMTE1YS00ZTFkLTgwNGEtMWMxYjc5N2VkMjBmXkEyXkFqcGc@._V1_.jpg', // Imagen antes de reproducir
-        trailerLink: '../src/img/video/conjuro.mp4',  // Ruta al video local
-        topic: 'Tema de ejemplo sobre El Conjuro',
+        movieTitle: 'National Geographic',
+        movieThumbnail: 'https://alfabetajuega.com/hero/2022/04/19d79bc3e750b0e332a0deebb15b9630.jpg?width=1200', // Imagen antes de reproducir
+        trailerLink: '../public/img/video/nationalg.mp4',  // Ruta al video local
+        topic: 'Tema de ejemplo sobre National Geographic',
         startTime: new Date(),
         participants: 5,
         moderator: 'Moderador Ejemplo',
