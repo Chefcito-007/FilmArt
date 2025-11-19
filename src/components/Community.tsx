@@ -185,6 +185,15 @@ export function Community({ user }: CommunityProps) {
       likes: 124,
       debatesCount: 8
     },
+        {
+      id: '4',
+      title: '¿Quién mandará en la inteligencia artificial?',
+      thumbnail: 'https://i.ytimg.com/vi/PPMb_rrej5c/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCHI41gn5JeEQJvkylrY5iceCxz_w',
+      views: 10000,
+      likes: 8000,
+      debatesCount: 8
+    },
+    
   ];
 
   useEffect(() => {
@@ -396,7 +405,7 @@ export function Community({ user }: CommunityProps) {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-green-600" />
-                <span>Películas Populares Esta Semana</span>
+                <span>Películas y Documentales Populares Esta Semana</span>
               </CardTitle>
             </CardHeader>
             <CardContent>

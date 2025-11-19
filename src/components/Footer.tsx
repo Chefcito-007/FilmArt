@@ -155,9 +155,6 @@ export function Footer() {
               <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Términos de uso
               </a>
-              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
-                Accesibilidad
-              </a>
             </div>
           </div>
         </div>

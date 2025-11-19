@@ -56,6 +56,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               
               <Button 
                 size="lg" 
+                onClick={onGetStarted}
                 variant="outline" 
                 className="border-white bg-white/10 text-white backdrop-blur-sm"
               >
@@ -90,7 +91,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
                 muted
                 className="w-full h-full object-cover"
               >
-                <source src="/img/video/proyector.mp4" type="video/mp4" />
+                <source src="/img/video/Cinemapr.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
               

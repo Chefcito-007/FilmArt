@@ -7,44 +7,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Alert, AlertDescription } from './ui/alert';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
+// 👉 IMPORTS DE FIREBASE
+import { auth } from '../firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// --- AUTH SIMULADA (sin Supabase) ---
-
-// Simula un pequeño "storage" en memoria
-let fakeUsers: { email: string; password: string; name: string }[] = [];
-
-const mockSignIn = async (email: string, password: string) => {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      const user = fakeUsers.find(
-        (u) => u.email === email && u.password === password
-      );
-      if (user) {
-        resolve();
-      } else {
-        reject(new Error('Credenciales inválidas. Verifica tu email y contraseña.'));
-      }
-    }, 800);
-  });
-};
-
-const mockSignUp = async (name: string, email: string, password: string) => {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      const exists = fakeUsers.some((u) => u.email === email);
-      if (exists) {
-        reject(new Error('Ya existe una cuenta registrada con este email.'));
-      } else {
-        fakeUsers.push({ name, email, password });
-        resolve();
-      }
-    }, 900);
-  });
-};
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +40,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSuccessMessage(null);
   };
 
+  // 🔐 INICIAR SESIÓN CON FIREBASE
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -73,20 +48,28 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSuccessMessage(null);
 
     try {
-      await mockSignIn(formData.email, formData.password);
-      setSuccessMessage('Inicio de sesión exitoso (simulado). ¡Bienvenido a Cine Comunitario!');
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      setSuccessMessage('Inicio de sesión exitoso. ¡Bienvenido a Cine Comunitario!');
 
       // Cerrar modal después de un momento
       setTimeout(() => {
         handleClose();
-      }, 1000);
+      }, 800);
     } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión (simulado).');
+      console.error(err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+        setError('Credenciales inválidas. Verifica tu email y contraseña.');
+      } else if (err.code === 'auth/user-not-found') {
+        setError('No existe una cuenta con este correo.');
+      } else {
+        setError('Error al iniciar sesión. Intenta nuevamente.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 📝 REGISTRO CON FIREBASE
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -106,10 +89,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
 
     try {
-      await mockSignUp(formData.name, formData.email, formData.password);
-      setSuccessMessage('Cuenta creada exitosamente (simulada). Ahora estás dentro de la comunidad. ❤️');
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
 
-      // Cambiar a tab de login automáticamente o cerrar
+      if (formData.name) {
+        await updateProfile(userCredential.user, {
+          displayName: formData.name,
+        });
+      }
+
+      setSuccessMessage('Cuenta creada exitosamente. ¡Ya eres parte de la comunidad! ❤️');
+
+      // Cambiar a tab de login automáticamente y limpiar contraseñas
       setActiveTab('signin');
       setFormData((prev) => ({
         ...prev,
@@ -117,7 +111,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         confirmPassword: ''
       }));
     } catch (err: any) {
-      setError(err.message || 'Error al crear la cuenta (simulada).');
+      console.error(err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Ya existe una cuenta registrada con este email.');
+      } else {
+        setError('Error al crear la cuenta. Intenta nuevamente.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -178,6 +177,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </Alert>
           )}
 
+          {/* TAB: INICIAR SESIÓN */}
           <TabsContent value="signin" className="space-y-4">
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
@@ -224,11 +224,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 className="w-full bg-indigo-600 hover:bg-indigo-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión (simulado)'}
+                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
               </Button>
             </form>
           </TabsContent>
 
+          {/* TAB: REGISTRO */}
           <TabsContent value="signup" className="space-y-4">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
@@ -308,7 +309,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 className="w-full bg-indigo-600 hover:bg-indigo-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creando cuenta...' : 'Crear cuenta (simulada)'}
+                {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
               </Button>
             </form>
           </TabsContent>
@@ -318,9 +319,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <p>
             Al continuar, aceptas participar en una comunidad inclusiva 
             dedicada a promover la cultura y el diálogo constructivo.
-          </p>
-          <p className="mt-1 text-[11px] text-gray-400">
-            *Esta versión utiliza autenticación simulada solo para pruebas locales.*
           </p>
         </div>
       </DialogContent>

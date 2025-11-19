@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ScrollArea } from './ui/scroll-area';
-import { Send, Users, Heart } from 'lucide-react';
+import { Send, Users, Heart, MessageCircle } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface Message {
@@ -37,11 +37,11 @@ interface LiveDebateProps {
 
 const generateRandomMessages = () => {
   const messages = [
-'¡Increíble cómo capturan la belleza de la naturaleza en National Geographic!',
-  'Me fascina cómo explican la relación entre los animales y su entorno 🌍',
-  '¿Alguien más se sorprendió con las imágenes del océano? Son impresionantes 🐋',
-  'Este documental me hace pensar en lo importante que es cuidar el planeta 🌿',
-  'La narración de National Geographic siempre logra inspirar, ¡qué producción tan buena!',
+    '¡Increíble cómo capturan la belleza de la naturaleza en National Geographic!',
+    'Me fascina cómo explican la relación entre los animales y su entorno 🌍',
+    '¿Alguien más se sorprendió con las imágenes del océano? Son impresionantes 🐋',
+    'Este documental me hace pensar en lo importante que es cuidar el planeta 🌿',
+    'La narración de National Geographic siempre logra inspirar, ¡qué producción tan buena!',
   ];
   return messages.map((msg, index) => ({
     id: `${index}`,
@@ -62,9 +62,21 @@ export function LiveDebate({ user }: LiveDebateProps) {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null); // Referencia al video
-  const [videoPlaying, setVideoPlaying] = useState(false); // Estado para controlar el video
-  const [imageLoaded, setImageLoaded] = useState(false); // Estado para controlar la imagen antes de reproducir
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+
+  // REACCIONES TIPO FACEBOOK LIVE
+  const [reactions, setReactions] = useState<{ id: number; emoji: string }[]>([]);
+  const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
+
+  const triggerReaction = (emoji: string) => {
+    const id = Date.now();
+    setReactions((prev) => [...prev, { id, emoji }]);
+
+    setTimeout(() => {
+      setReactions((prev) => prev.filter((r) => r.id !== id));
+    }, 2000);
+  };
 
   useEffect(() => {
     loadDebateData();
@@ -83,13 +95,14 @@ export function LiveDebate({ user }: LiveDebateProps) {
       const sampleDebate = {
         id: '1',
         movieTitle: 'National Geographic',
-        movieThumbnail: 'https://alfabetajuega.com/hero/2022/04/19d79bc3e750b0e332a0deebb15b9630.jpg?width=1200', // Imagen antes de reproducir
-        trailerLink: '/img/video/nationalg.mp4',  // Ruta al video local
+        movieThumbnail:
+          'https://alfabetajuega.com/hero/2022/04/19d79bc3e750b0e332a0deebb15b9630.jpg?width=1200',
+        trailerLink: '/img/video/nationalg.mp4',
         topic: 'Tema de ejemplo sobre National Geographic',
         startTime: new Date(),
         participants: 5,
         moderator: 'Moderador Ejemplo',
-        status: 'live',
+        status: 'live' as const,
       };
 
       setCurrentSession({
@@ -97,7 +110,7 @@ export function LiveDebate({ user }: LiveDebateProps) {
         startTime: new Date(sampleDebate.startTime),
       });
 
-      setMessages(generateRandomMessages()); // Generar mensajes aleatorios
+      setMessages(generateRandomMessages());
     } catch (error) {
       console.error('Error loading debate data:', error);
     } finally {
@@ -106,7 +119,7 @@ export function LiveDebate({ user }: LiveDebateProps) {
   };
 
   const loadMessages = () => {
-    setMessages(prevMessages => [
+    setMessages((prevMessages) => [
       ...prevMessages,
       ...generateRandomMessages(),
     ]);
@@ -118,13 +131,24 @@ export function LiveDebate({ user }: LiveDebateProps) {
     try {
       setIsSending(true);
 
-      setMessages(prev => [...prev, {
-        id: String(prev.length + 1),
-        user: { name: user.name, id: user.id, avatar: user.avatar },
-        message: newMessage,
-        timestamp: new Date().toISOString(),
-        likes: 0,
-      }]);
+      // 🔹 Aseguramos que siempre haya nombre, id y avatar válidos
+      const displayName =
+        user.displayName ||
+        user.name ||
+        (user.email ? user.email.split('@')[0] : 'Usuario');
+      const userId = user.uid || user.id || 'local-user';
+      const avatarUrl = user.photoURL || user.avatar || undefined;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: String(prev.length + 1),
+          user: { name: displayName, id: userId, avatar: avatarUrl },
+          message: newMessage,
+          timestamp: new Date().toISOString(),
+          likes: 0,
+        },
+      ]);
 
       setNewMessage('');
     } catch (error) {
@@ -134,16 +158,13 @@ export function LiveDebate({ user }: LiveDebateProps) {
     }
   };
 
+  // Botón Reproducir / Pausar
   const togglePlayVideo = () => {
-    if (videoRef.current) {
-      if (videoRef.current.paused) {
-        videoRef.current.play();
-        setVideoPlaying(true);
-        setImageLoaded(false); // Ocultar la imagen cuando el video empieza
-      } else {
-        videoRef.current.pause();
-        setVideoPlaying(false);
-      }
+    if (!videoPlaying) {
+      setVideoPlaying(true);
+    } else if (videoRef.current) {
+      videoRef.current.pause();
+      setVideoPlaying(false);
     }
   };
 
@@ -183,7 +204,9 @@ export function LiveDebate({ user }: LiveDebateProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Debate  <span style={{color: "red"}}>° en Vivo</span></h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Debate <span style={{ color: 'red' }}>° en Vivo</span>
+        </h1>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -205,14 +228,20 @@ export function LiveDebate({ user }: LiveDebateProps) {
                   {messages.map((message) => (
                     <div key={message.id} className="flex space-x-3">
                       <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage src={message.user.avatar} />
+                        {message.user.avatar && (
+                          <AvatarImage src={message.user.avatar} />
+                        )}
                         <AvatarFallback>
-                          {message.user.name.charAt(0).toUpperCase()}
+                          {(message.user.name || '?')
+                            .charAt(0)
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-semibold text-sm">{message.user.name}</span>
+                          <span className="font-semibold text-sm">
+                            {message.user.name || 'Usuario'}
+                          </span>
                           <span className="text-xs text-gray-500">
                             {message.timestamp}
                           </span>
@@ -238,7 +267,12 @@ export function LiveDebate({ user }: LiveDebateProps) {
                       placeholder="Comparte tu opinión..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
                       className="flex-1"
                     />
                     <Button
@@ -263,12 +297,25 @@ export function LiveDebate({ user }: LiveDebateProps) {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardContent className="p-6">
-              {/* Mostrar imagen o video */}
               <div className="mb-6">
-                <div className="aspect-video rounded-lg overflow-hidden">
-                  {!videoPlaying && imageLoaded ? (
-                    <img
-                      src="https://m.media-amazon.com/images/M/MV5BOGU3OTk3ZjgtMTE1YS00ZTFkLTgwNGEtMWMxYjc5N2VkMjBmXkEyXkFqcGc@._V1_.jpg"
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  {/* Reacciones flotantes */}
+                  <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {reactions.map((r) => (
+                      <div
+                        key={r.id}
+                        className="absolute bottom-0 animate-bounce"
+                        style={{ left: `${Math.random() * 80 + 10}%` }}
+                      >
+                        <span className="text-3xl drop-shadow">{r.emoji}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Imagen previa o video */}
+                  {!videoPlaying ? (
+                    <ImageWithFallback
+                      src={currentSession.movieThumbnail}
                       alt={currentSession.movieTitle}
                       className="w-full h-full object-cover"
                     />
@@ -277,19 +324,56 @@ export function LiveDebate({ user }: LiveDebateProps) {
                       ref={videoRef}
                       className="w-full h-full"
                       controls
-                      onClick={togglePlayVideo}
+                      autoPlay={videoPlaying}
                     >
-                      <source src={currentSession.trailerLink} type="video/mp4" />
+                      <source
+                        src={currentSession.trailerLink}
+                        type="video/mp4"
+                      />
                       Tu navegador no soporta la etiqueta de video.
                     </video>
                   )}
-                  <Button
-                    onClick={togglePlayVideo}
-                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white"
-                  >
-                    {videoPlaying ? 'Pausar' : 'Reproducir'}
-                  </Button>
+
+                  {/* Botón Reproducir sobre la imagen */}
+                  {!videoPlaying && (
+                    <button
+                      type="button"
+                      onClick={togglePlayVideo}
+                      className="
+                        absolute 
+                        top-1/2 left-1/2 
+                        -translate-x-1/2 -translate-y-1/2 
+                        bg-black/60 
+                        text-white 
+                        w-24 h-24 
+                        rounded-full 
+                        flex items-center justify-center 
+                        text-4xl font-bold 
+                        shadow-xl
+                        hover:bg-black/80 
+                        transition
+                        z-20
+                      "
+                    >
+                      ▶
+                    </button>
+                  )}
                 </div>
+              </div>
+
+              {/* Botones de reacciones debajo del video */}
+              <div className="mt-4 flex items-center gap-3">
+                <span className="text-xs text-gray-500">Reacciones:</span>
+                {reactionEmojis.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => triggerReaction(emoji)}
+                    className="text-2xl hover:scale-110 transition-transform"
+                  >
+                    {emoji}
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>

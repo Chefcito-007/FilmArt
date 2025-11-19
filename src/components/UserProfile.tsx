@@ -70,42 +70,42 @@ export function UserProfile({ user }: UserProfileProps) {
   const watchedMovies: WatchedMovie[] = [
     {
       id: '1',
-      title: 'Voces del Barrio',
-      thumbnail: 'https://images.unsplash.com/photo-1630853480548-d1b4a1ecd193?w=200&h=300&fit=crop',
+      title: 'La Decima',
+      thumbnail: 'https://static.wixstatic.com/media/b232c9_5adb256ed4a348f8ab595f43d44b7eab~mv2.jpg/v1/fill/w_2500,h_1406,al_c/b232c9_5adb256ed4a348f8ab595f43d44b7eab~mv2.jpg',
       watchedDate: new Date('2024-01-20'),
       rating: 5,
       liked: true
     },
     {
       id: '2',
-      title: 'El Último Guardián',
-      thumbnail: 'https://images.unsplash.com/photo-1758244016382-c0807cf00fbf?w=200&h=300&fit=crop',
+      title: 'El conjuro 4: Los ultimos ritos',
+      thumbnail: 'https://m.media-amazon.com/images/M/MV5BYmU0NzZhYTItOWEyMy00YWE5LTljZjgtOGJhYmIwNDI5NjNiXkEyXkFqcGc@._V1_.jpg',
       watchedDate: new Date('2024-01-18'),
       rating: 4,
-      liked: true
+      liked: false
     },
     {
       id: '3',
-      title: 'Manos que Crean',
-      thumbnail: 'https://images.unsplash.com/photo-1758146869763-d3df94a61b0e?w=200&h=300&fit=crop',
+      title: 'National Geographic',
+      thumbnail: 'https://alfabetajuega.com/hero/2022/04/19d79bc3e750b0e332a0deebb15b9630.jpg?width=1200',
       watchedDate: new Date('2024-01-15'),
       rating: 4,
-      liked: false
+      liked: true
     }
   ];
 
   const debateHistory: DebateParticipation[] = [
     {
-      id: '1',
-      movieTitle: 'Voces del Barrio',
-      topic: 'Participación comunitaria en barrios urbanos',
+      id: '3',
+      movieTitle: 'National Geographic',
+      topic: 'Participación comunitaria en temas del planeta',
       date: new Date('2024-01-20'),
       messagesCount: 5,
       likes: 23
     },
     {
       id: '2',
-      movieTitle: 'El Último Guardián',
+      movieTitle: 'El conjuro',
       topic: 'Preservación de saberes ancestrales',
       date: new Date('2024-01-18'),
       messagesCount: 8,
@@ -159,7 +159,7 @@ export function UserProfile({ user }: UserProfileProps) {
               
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  {user.user_metadata?.name || user.email}
+                  {user.user_metadata?.name || user.displayName}
                 </h1>
                 <p className="text-gray-600 mb-4">
                   Miembro desde {formatDate(userStats.memberSince)}
@@ -400,7 +400,7 @@ export function UserProfile({ user }: UserProfileProps) {
                   <div className="flex items-start space-x-3 border-l-4 border-blue-500 pl-3">
                     <Clock className="h-4 w-4 text-gray-400 mt-1" />
                     <div>
-                      <p className="text-sm">Participaste en el debate de "Voces del Barrio"</p>
+                      <p className="text-sm">Participaste en el debate de "El conjuro"</p>
                       <p className="text-xs text-gray-500">Hace 2 días</p>
                     </div>
                   </div>
@@ -416,7 +416,7 @@ export function UserProfile({ user }: UserProfileProps) {
                   <div className="flex items-start space-x-3 border-l-4 border-purple-500 pl-3">
                     <Heart className="h-4 w-4 text-gray-400 mt-1" />
                     <div>
-                      <p className="text-sm">Diste like a "El Último Guardián"</p>
+                      <p className="text-sm">Diste like a "La decima"</p>
                       <p className="text-xs text-gray-500">Hace 1 semana</p>
                     </div>
                   </div>
