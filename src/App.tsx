@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { DonationsSection } from './components/DonationsSection';
+import { DonationFloatingButton } from './components/DonationFloatingButton'; // 👈 NUEVO
 
 export default function App() {
   const [currentView, setCurrentView] = useState<
@@ -19,6 +20,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Escuchar cambios de sesión
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
       setUser(fbUser);
@@ -27,6 +29,11 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
+
+  // Subir al inicio cuando cambie de vista
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentView]);
 
   const handleSignOut = async () => {
     try {
@@ -37,39 +44,38 @@ export default function App() {
     }
   };
 
-const renderContent = () => {
-  switch (currentView) {
-    case 'catalog':
-      return <MovieCatalog user={user} />;
-    case 'debate':
-      return <LiveDebate user={user} />;
-    case 'profile':
-      return user ? <UserProfile user={user} /> : null;
-    case 'community':
-      return <Community user={user} />;
-    case 'donations':
-      return <DonationsSection />;
-    default:
-      return (
-        <>
-          <HeroSection
-            onGetStarted={() =>
-              user ? setCurrentView('catalog') : setIsAuthModalOpen(true)
-            }
-          />
-          <div className="py-16 bg-gray-50">
-            <div className="container mx-auto px-4">
-              <h2 className="text-center text-gray-600 mb-12">
-                Una vista previa de nuestro catálogo
-              </h2>
-              <MovieCatalog user={user} preview={true} />
+  const renderContent = () => {
+    switch (currentView) {
+      case 'catalog':
+        return <MovieCatalog user={user} />;
+      case 'debate':
+        return <LiveDebate user={user} />;
+      case 'profile':
+        return user ? <UserProfile user={user} /> : null;
+      case 'community':
+        return <Community user={user} />;
+      case 'donations':
+        return <DonationsSection />;
+      default:
+        return (
+          <>
+            <HeroSection
+              onGetStarted={() =>
+                user ? setCurrentView('catalog') : setIsAuthModalOpen(true)
+              }
+            />
+            <div className="py-16 bg-gray-50">
+              <div className="container mx-auto px-4">
+                <h2 className="text-center text-gray-600 mb-12">
+                  Una vista previa de nuestro catálogo
+                </h2>
+                <MovieCatalog user={user} preview={true} />
+              </div>
             </div>
-          </div>
-        </>
-      );
-  }
-};
-
+          </>
+        );
+    }
+  };
 
   if (isLoading) {
     return (
@@ -90,6 +96,9 @@ const renderContent = () => {
       />
 
       <main>{renderContent()}</main>
+
+      {/* 🔥 Botón flotante de donación: siempre visible, pero SOLO en móvil */}
+      <DonationFloatingButton />
 
       <Footer />
 
